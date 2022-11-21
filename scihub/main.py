@@ -5,78 +5,128 @@ app = Commander(name)
 
 
 @app.command()
-def dl(keywords: list):
+def dl(keywords: list, meeting: str = ""):
     """
     下载论文
 
     :param keywords: 关键词
+    :param meeting: 会议
     """
+    import re
+
     keywords = " ".join(keywords)
 
     from selenium.webdriver.common.by import By
 
-    with QproDefaultConsole.status("正在打开浏览器...") as st:
-        driver = getDriver()
+    status = QproDefaultConsole.status(
+        "正在打开浏览器..." if user_lang == "zh" else "Opening browser..."
+    )
 
-        st.update("正在打开Sci-Hub...")
+    status.start()
 
-        driver.get("https://sci-hub.se/")
+    driver = getDriver()
 
-        st.update("正在搜索...")
+    status.update("正在打开Sci-Hub..." if user_lang == "zh" else "Opening Sci-Hub...")
 
-        driver.find_element(By.ID, "request").send_keys(keywords)
-        driver.find_element(By.TAG_NAME, "button").click()
+    driver.get("https://sci-hub.se/")
 
-        st.update("正在解析...")
-        # get paper title
-        content = driver.find_element(By.ID, "citation")
-        content = content.find_element(By.TAG_NAME, "i").text
-        title = content.split(".")[0].strip()
+    status.update("正在搜索..." if user_lang == "zh" else "Searching...")
 
-        # get meeting
-        meeting = content.split(".")[1].strip().split()[-1][1:-1]
-        year = content.split(".")[1].strip().split()[0].strip()
+    driver.find_element(By.ID, "request").send_keys(keywords)
+    driver.find_element(By.TAG_NAME, "button").click()
 
-        # get url from button
-        url = driver.find_element(By.TAG_NAME, "button").get_attribute("onclick")
-        url = url.split("'")[1][:-1]
-
-        st.update("正在关闭浏览器...")
-
-        closeDriver()
-
-        # move file to meeting dir
-        work_path = config.select("work_path")
-        if not os.path.exists(os.path.join(work_path, meeting)):
-            os.mkdir(os.path.join(work_path, meeting))
-        if not os.path.exists(os.path.join(work_path, meeting, year)):
-            os.mkdir(os.path.join(work_path, meeting, year))
-
-        st.update("正在下载...")
-
-        # download
-
-        path = os.path.join(
-            config.select("work_path"),
-            meeting,
-            year,
-            title.replace(": ", "：").replace("/", "-").strip(".") + ".pdf",
-        )
-        if os.path.exists(path):
+    status.update("正在解析..." if user_lang == "zh" else "Parsing...")
+    # is exist?
+    try:
+        if driver.find_element(By.ID, "smile").text == ":(":
             QproDefaultConsole.print(
-                QproInfoString,
-                f'文件已存在: "{path}"',
+                "未找到相关论文" if user_lang == "zh" else "No related papers found"
             )
+            status.stop()
             return
+    except:
+        pass
+    # get url from button
+    url = driver.find_element(By.TAG_NAME, "button").get_attribute("onclick")
+    url = url.split("'")[1][:-1]
 
-        requirePackage(
-            "QuickStart_Rhy.NetTools.NormalDL", "normal_dl", "QuickStart_Rhy"
-        )(
-            "https://sci-hub.se" + url,
-            path,
-            disableStatus=True,
+    # get paper title
+    content = driver.find_element(By.ID, "citation")
+    i = content.find_element(By.TAG_NAME, "i").text
+
+    content = content.text
+
+    status.update("正在关闭浏览器..." if user_lang == "zh" else "Closing browser...")
+    closeDriver()
+    status.update("正在解析..." if user_lang == "zh" else "Parsing...")
+
+    title = i.split(".")[0].strip()
+
+    # get meeting
+    if meeting == "":
+        meeting = content.split(".")[1].strip().split()[-1][1:-1]
+        if meeting not in ["HPCA", "ASPLOS", "ISCA", "MICRO", "EMC2"]:
+            status.stop()
+
+            from QuickProject import QproWarnString
+
+            QproDefaultConsole.print(
+                QproWarnString,
+                f"未识别: {meeting}, 请修正!"
+                if user_lang == "zh"
+                else f"Unrecognized: {meeting}, please fix!",
+            )
+
+            from . import _ask
+
+            meeting = _ask(
+                {
+                    "type": "input",
+                    "message": "请输入会议简称"
+                    if user_lang == "zh"
+                    else "Please enter the conference abbreviation",
+                }
+            )
+            status.start()
+    year = re.findall(r"\d{4}", content)[0]
+
+    # move file to meeting dir
+    work_path = config.select("work_path")
+    if not os.path.exists(os.path.join(work_path, meeting)):
+        os.mkdir(os.path.join(work_path, meeting))
+    if not os.path.exists(os.path.join(work_path, meeting, year)):
+        os.mkdir(os.path.join(work_path, meeting, year))
+
+    status.update("正在下载..." if user_lang == "zh" else "Downloading...")
+
+    # download
+
+    path = os.path.join(
+        config.select("work_path"),
+        meeting,
+        year,
+        title.replace(": ", "：").replace("/", "-").strip(".") + ".pdf",
+    )
+    if os.path.exists(path):
+        QproDefaultConsole.print(
+            QproInfoString,
+            f'文件已存在: "{path}"'
+            if user_lang == "zh"
+            else f'File already exists: "{path}"',
         )
-    QproDefaultConsole.print(QproInfoString, f'下载完成: "{path}"')
+        status.stop()
+        return
+
+    requirePackage("QuickStart_Rhy.NetTools.NormalDL", "normal_dl", "QuickStart_Rhy")(
+        "https://sci-hub.se" + url,
+        path,
+        disableStatus=True,
+    )
+    status.stop()
+    QproDefaultConsole.print(
+        QproInfoString,
+        f'下载完成: "{path}"' if user_lang == "zh" else f'Download complete: "{path}"',
+    )
 
 
 def main():
