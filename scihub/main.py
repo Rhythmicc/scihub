@@ -68,10 +68,13 @@ def dl(keywords: list):
                 f'文件已存在: "{path}"',
             )
             return
-    requirePackage("QuickStart_Rhy.NetTools.NormalDL", "normal_dl", "QuickStart_Rhy")(
-        "https://sci-hub.se" + url,
-        path,
-    )
+        requirePackage(
+            "QuickStart_Rhy.NetTools.NormalDL", "normal_dl", "QuickStart_Rhy"
+        )(
+            "https://sci-hub.se" + url,
+            path,
+            disableStatus=True,
+        )
     QproDefaultConsole.print(QproInfoString, f'下载完成: "{path}"')
 
 
