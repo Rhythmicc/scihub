@@ -60,7 +60,7 @@ def dl(keywords: list):
             config.select("work_path"),
             meeting,
             year,
-            title.replace(": ", "：").strip(".") + ".pdf",
+            title.replace(": ", "：").replace("/", "-").strip(".") + ".pdf",
         )
         if os.path.exists(path):
             QproDefaultConsole.print(
@@ -68,6 +68,7 @@ def dl(keywords: list):
                 f'文件已存在: "{path}"',
             )
             return
+
         requirePackage(
             "QuickStart_Rhy.NetTools.NormalDL", "normal_dl", "QuickStart_Rhy"
         )(
