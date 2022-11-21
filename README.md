@@ -3,18 +3,12 @@
 ## Install
 
 ```shell
-pip3 install scihub -U
+pip3 install git+https://github.com/Rhythmicc/scihub.git -U
 ```
 
 ## Usage
 
 ```shell
 scihub --help
+scihub dl -keywords ...
 ```
-
-## Developer
-
-If you need use global config, just edit `__config__.py`:
-1. make `enable_config = True`.
-2. edit `questions` list.
-3. using `config` at `main.py`.
