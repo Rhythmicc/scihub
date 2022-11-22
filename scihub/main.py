@@ -40,21 +40,34 @@ def dl(keywords: list, meeting: str = ""):
     try:
         if driver.find_element(By.ID, "smile").text == ":(":
             QproDefaultConsole.print(
-                "未找到相关论文" if user_lang == "zh" else "No related papers found"
+                QproWarnString,
+                "未找到相关论文" if user_lang == "zh" else "No related papers found",
             )
+            status.update("正在关闭浏览器..." if user_lang == "zh" else "Closing browser...")
+            closeDriver()
             status.stop()
             return
     except:
         pass
-    # get url from button
-    url = driver.find_element(By.TAG_NAME, "button").get_attribute("onclick")
-    url = url.split("'")[1][:-1]
 
-    # get paper title
-    content = driver.find_element(By.ID, "citation")
-    i = content.find_element(By.TAG_NAME, "i").text
+    try:
+        content = driver.find_element(By.ID, "citation")
+        i = content.find_element(By.TAG_NAME, "i").text
+        # get url from button
+        url = driver.find_element(By.TAG_NAME, "button").get_attribute("onclick")
+        url = url.split("'")[1][:-1]
 
-    content = content.text
+        # get paper title
+        content = content.text
+    except:
+        QproDefaultConsole.print(
+            QproWarnString,
+            "未找到相关论文" if user_lang == "zh" else "No related papers found",
+        )
+        status.update("正在关闭浏览器..." if user_lang == "zh" else "Closing browser...")
+        closeDriver()
+        status.stop()
+        return
 
     status.update("正在关闭浏览器..." if user_lang == "zh" else "Closing browser...")
     closeDriver()
