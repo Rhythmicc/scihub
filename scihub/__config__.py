@@ -1,6 +1,13 @@
 import os
 import json
-from QuickProject import user_root, user_lang, QproDefaultConsole, QproInfoString, _ask
+from QuickProject import (
+    user_root,
+    user_lang,
+    QproDefaultConsole,
+    QproInfoString,
+    _ask,
+    QproWarnString,
+)
 
 enable_config = True
 config_path = os.path.join(user_root, ".scihub_config")

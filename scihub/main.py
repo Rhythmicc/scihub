@@ -80,9 +80,6 @@ def dl(keywords: list, meeting: str = ""):
         meeting = content.split(".")[1].strip().split()[-1][1:-1]
         if meeting not in ["HPCA", "ASPLOS", "ISCA", "MICRO", "EMC2"]:
             status.stop()
-
-            from QuickProject import QproWarnString
-
             QproDefaultConsole.print(
                 QproWarnString,
                 f"未识别: {meeting}, 请修正!"
