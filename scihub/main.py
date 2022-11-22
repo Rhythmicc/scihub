@@ -1,4 +1,5 @@
 from QuickProject.Commander import Commander
+from . import _ask
 from . import *
 
 app = Commander(name)
