@@ -1,5 +1,5 @@
 from QuickProject.Commander import Commander
-from . import _ask
+from . import _ask as ask
 from . import *
 
 app = Commander(name)
@@ -14,7 +14,7 @@ def dl(meeting: str = ""):
     """
     import re
 
-    keywords = _ask(
+    keywords = ask(
         {
             "type": "input",
             "message": "请输入关键词",
