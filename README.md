@@ -10,5 +10,4 @@ pip3 install git+https://github.com/Rhythmicc/scihub.git -U
 
 ```shell
 scihub --help
-scihub dl -keywords ...
 ```
