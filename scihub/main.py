@@ -5,16 +5,20 @@ app = Commander(name)
 
 
 @app.command()
-def dl(keywords: list, meeting: str = ""):
+def dl(meeting: str = ""):
     """
     下载论文
 
-    :param keywords: 关键词
     :param meeting: 会议
     """
     import re
 
-    keywords = " ".join(keywords)
+    keywords = _ask(
+        {
+            "type": "input",
+            "message": "请输入关键词",
+        }
+    )
 
     from selenium.webdriver.common.by import By
 
