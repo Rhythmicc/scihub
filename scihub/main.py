@@ -85,6 +85,7 @@ def getUrl(url, driver, status):
         # get url from button
         url = driver.find_element(By.TAG_NAME, "button").get_attribute("onclick")
         url = url.split("'")[1][:-1]
+        return url
     except:
         QproDefaultConsole.print(
             QproWarnString,
@@ -94,11 +95,12 @@ def getUrl(url, driver, status):
 
 
 @app.command()
-def dl(url: str = ""):
+def dl(url: str = "", folder: str = ""):
     """
     下载ACM/IEEE论文
 
     :param url: 论文链接
+    :param folder: 保存路径
     """
     import re
 
@@ -106,6 +108,7 @@ def dl(url: str = ""):
         {
             "type": "input",
             "message": "请输入论文链接",
+            "default": url if (url := requirePackage("pyperclip").paste()) else "",
         }
     )
 
@@ -126,22 +129,29 @@ def dl(url: str = ""):
         return
     status.update("正在解析..." if user_lang == "zh" else "Parsing...")
 
-    # move file to meeting dir
-    work_path = config.select("work_path")
-    if not os.path.exists(os.path.join(work_path, meeting)):
-        os.mkdir(os.path.join(work_path, meeting))
-    if not os.path.exists(os.path.join(work_path, meeting, year)):
-        os.mkdir(os.path.join(work_path, meeting, year))
+    if not folder:
+        # move file to meeting dir
+        work_path = config.select("work_path")
+        if not os.path.exists(os.path.join(work_path, meeting)):
+            os.mkdir(os.path.join(work_path, meeting))
+        if not os.path.exists(os.path.join(work_path, meeting, year)):
+            os.mkdir(os.path.join(work_path, meeting, year))
 
-    status.update("正在下载..." if user_lang == "zh" else "Downloading...")
+        status.update("正在下载..." if user_lang == "zh" else "Downloading...")
 
-    # download
-    path = os.path.join(
-        config.select("work_path"),
-        meeting,
-        year,
-        title.replace(": ", "：").replace("/", "-").strip(".") + ".pdf",
-    )
+        # download
+        path = os.path.join(
+            config.select("work_path"),
+            meeting,
+            year,
+            title.replace(": ", "：").replace("/", "-").strip(".") + ".pdf",
+        )
+    else:
+        status.update("正在下载..." if user_lang == "zh" else "Downloading...")
+        path = os.path.join(
+            folder, title.replace(": ", "：").replace("/", "-").strip(".") + ".pdf"
+        )
+
     if os.path.exists(path):
         QproDefaultConsole.print(
             QproInfoString,
