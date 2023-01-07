@@ -9,7 +9,7 @@ if enable_config:
     config = scihubConfig()
 
 import sys
-from QuickProject import user_pip, _ask, external_exec
+from QuickProject import user_pip, _ask, external_exec, QproErrorString
 from selenium import webdriver
 
 
